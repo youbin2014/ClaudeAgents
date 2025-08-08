@@ -1,20 +1,21 @@
-# Claude Agents Framework
+# Claude Code Subagent Pipeline
 
-A powerful multi-agent system powered by Claude for automated software development with TDD methodology.
+A sophisticated multi-agent development workflow system built on **Claude Code Sub-Agents** using Markdown-based agent definitions.
 
 ## Overview
 
-This framework implements a sophisticated pipeline that orchestrates multiple specialized Claude agents to handle complex development tasks. It features intent analysis, planning, development, and evaluation phases with automatic rollback capabilities.
+This system implements a comprehensive development pipeline using Claude Code's subagent architecture. It orchestrates multiple specialized AI agents to handle complex development tasks through intent analysis, TDD planning, development execution, and evaluation phases with automatic rollback capabilities.
 
-## Key Features
+## 🚀 Key Features
 
-- **Multi-Agent Architecture**: Specialized agents for different aspects of development
-- **TDD Methodology**: Test-Driven Development approach with comprehensive test coverage
-- **Dual LLM Integration**: Combines Claude and GPT-5 capabilities for enhanced results
-- **Automatic Rollback**: Safe rollback mechanism when evaluation fails
-- **Intelligent Routing**: Smart query routing based on complexity analysis
+- **Markdown-Based Subagents**: Agents defined in `.md` files with YAML frontmatter
+- **Intelligent Routing**: Automatic query routing between quick responses and full pipeline
+- **TDD Methodology**: Test-Driven Development with comprehensive coverage
+- **Dual LLM Integration**: Combines Claude and GPT-5 capabilities
+- **Automatic Rollback**: Safe recovery when evaluation fails
+- **Structured Handoffs**: JSON schema for agent communication
 
-## System Architecture
+## 🏗️ Architecture
 
 ```
 User Query → Router → Intent Analysis → Planning → Development → Evaluation
@@ -22,53 +23,151 @@ User Query → Router → Intent Analysis → Planning → Development → Evalu
             Quick Response                                      Rollback (if failed)
 ```
 
-## Core Agents
+## 🤖 Subagent Pipeline
 
-### Intent Analysis
-- **intent-cc**: Claude-based intent analysis
-- **intent-gpt5**: GPT-5 enhanced intent analysis  
-- **intent-merge-cc**: Merges insights from both LLMs
+### Stage 0: Routing
+- **`router`**: Decides between quick response or full pipeline mode
 
-### Planning
-- **plan-cc**: Claude-based TDD planning
-- **plan-gpt5**: GPT-5 comprehensive planning
-- **plan-merge-cc**: Combines planning strategies
+### Stage 1: Intent Understanding
+- **`intent-cc`**: Claude analyzes user intent and code context
+- **`intent-gpt5`**: GPT-5 focuses on code touchpoints and technical details
+- **`intent-merge-cc`**: Merges insights into comprehensive intent analysis
 
-### Development
-- **dev-cc**: Main development execution agent
-- **rollback-cc**: Handles safe rollback when needed
+### Stage 2: Planning (TDD-First)
+- **`plan-cc`**: Claude generates test-driven development plan
+- **`plan-gpt5`**: GPT-5 enhances with edge cases and boundary testing
+- **`plan-merge-cc`**: Creates final comprehensive development plan
 
-### Orchestration
-- **orchestrator**: Coordinates the entire pipeline
-- **router**: Routes queries based on complexity
+### Stage 3: Development
+- **`dev-cc`**: Executes development following TDD methodology
 
-## Quick Start
+### Stage 4: Evaluation
+- **`eval-gpt5`**: GPT-5 evaluates results and test coverage
 
-```python
-from claude_agents import Orchestrator
+### Stage 5: Rollback (If Needed)
+- **`rollback-cc`**: Safely reverts changes when evaluation fails
 
-# Initialize the orchestrator
-orchestrator = Orchestrator()
+## 📁 Project Structure
 
-# Process a development request
-result = orchestrator.process("Implement a user authentication system")
+```
+.claude/agents/          # Claude Code subagent definitions
+├── router.md           # Query routing logic
+├── intent-cc.md        # Claude intent analysis
+├── intent-gpt5.md      # GPT-5 intent analysis
+├── intent-merge-cc.md  # Intent merging
+├── plan-cc.md          # Claude planning
+├── plan-gpt5.md        # GPT-5 planning
+├── plan-merge-cc.md    # Plan merging
+├── dev-cc.md           # Development execution
+├── eval-gpt5.md        # GPT-5 evaluation
+└── rollback-cc.md      # Rollback handling
+
+scripts/
+└── gpt5_bridge.py      # GPT-5 integration script
+
+examples/
+└── async_conversion_workflow.md  # Example workflow
 ```
 
-## Installation
+## 🚀 Quick Start
 
+### 1. Set up Claude Code Subagents
+Place the agent `.md` files in your `~/.claude/agents/` directory or use project-level `.claude/agents/`.
+
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-## Configuration
-
-Configure your API keys in `.env`:
-
-```
-CLAUDE_API_KEY=your_claude_key
-OPENAI_API_KEY=your_openai_key
+### 3. Configure API Keys
+```bash
+export CLAUDE_API_KEY=your_claude_key
+export OPENAI_API_KEY=your_openai_key  # For GPT-5 integration
 ```
 
-## License
+### 4. Use the Pipeline
+Start a Claude Code session and trigger the pipeline:
+
+```bash
+# Automatic pipeline detection
+"Convert this module to async and add comprehensive tests"
+
+# Explicit pipeline mode
+"#pipeline Convert this authentication system to use JWT tokens"
+```
+
+## 📊 JSON Schema
+
+The system uses structured JSON for agent communication:
+
+### RouterDecision
+```json
+{"mode": "pipeline", "override_detected": true, "reasons": ["Complex development task"]}
+```
+
+### IntentDraft
+```json
+{
+  "context": "Converting synchronous code to async",
+  "primary_goals": ["Add async/await support", "Maintain API compatibility"],
+  "code_touchpoints": [{"path": "auth.py", "reason": "Main authentication logic"}]
+}
+```
+
+### PlanDraft
+```json
+{
+  "milestones": [{"name": "Convert core functions", "deliverables": ["async auth methods"]}],
+  "test_strategy": {"levels": ["unit", "integration"], "tools": ["pytest-asyncio"]},
+  "test_cases": [{"id": "TC1", "given": "sync function", "when": "converted", "then": "async compatible"}]
+}
+```
+
+## 🛠️ GPT-5 Integration
+
+The system includes a bridge script for GPT-5 integration:
+
+```bash
+python scripts/gpt5_bridge.py --phase intent --input intent_cc.json --output intent_gpt5.json
+```
+
+## 🧪 TDD Focus
+
+All development follows Test-Driven Development:
+- Tests written before implementation
+- Comprehensive test coverage validation
+- Real test execution and verification
+- Automated test result evaluation
+
+## 📖 Example Workflow
+
+See `examples/async_conversion_workflow.md` for a complete example of converting a synchronous module to async with comprehensive testing.
+
+## 🔧 Customization
+
+Each subagent can be customized by editing its Markdown file:
+
+```markdown
+---
+name: custom-agent
+description: Handles custom development tasks
+tools: Read, Write, Edit, Bash
+model: sonnet
+---
+
+Your custom agent prompt and instructions here...
+```
+
+## 📚 Documentation
+
+- `claude_code_pipeline_design.md`: Detailed system design
+- `examples/`: Workflow examples and patterns
+- `docs/`: Additional documentation
+
+## 🤝 Contributing
+
+This is a framework for creating sophisticated development workflows using Claude Code's subagent system. Feel free to extend and customize for your specific needs.
+
+## 📄 License
 
 MIT
