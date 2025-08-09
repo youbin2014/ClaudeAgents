@@ -20,14 +20,33 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
+import structlog
 
 # Load environment variables
 load_dotenv()
+logger = structlog.get_logger()
+
+def _parse_json_like(text: str, default: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    try:
+        import re
+        fence = re.search(r"```json\s*([\s\S]*?)```", text)
+        if fence:
+            return json.loads(fence.group(1).strip())
+        brace = re.search(r"\{[\s\S]*\}", text)
+        if brace:
+            return json.loads(brace.group(0))
+    except Exception:
+        pass
+    return default
 
 class GPT5Bridge:
     """Bridge for GPT-5 integration with Claude Code subagents."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model_key: str = "full"):
         """Initialize GPT-5 client."""
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
@@ -40,6 +59,7 @@ class GPT5Bridge:
             "mini": "gpt-5-mini",
             "nano": "gpt-5-nano"
         }
+        self.model_key = model_key
     
     async def analyze_intent(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze intent using GPT-5's code understanding capabilities."""
@@ -80,41 +100,17 @@ Provide a structured IntentDraft in JSON format:
 }}"""
         
         response = await self.client.chat.completions.create(
-            model=self.models["full"],
+            model=self.models.get(self.model_key, self.models["full"]),
             messages=[
                 {"role": "system", "content": "You are GPT-5, excelling at code analysis with state-of-the-art performance."},
                 {"role": "user", "content": prompt}
             ],
-            reasoning="medium",  # GPT-5 specific parameter
-            verbosity="detailed",  # GPT-5 specific parameter
-            temperature=0.4,
-            max_tokens=4000
+            max_completion_tokens=4000
         )
         
         # Parse the response
         content = response.choices[0].message.content
-        
-        # Try to extract JSON from the response
-        try:
-            # Find JSON block in the response
-            import re
-            json_match = re.search(r'\{[\s\S]*\}', content)
-            if json_match:
-                result = json.loads(json_match.group())
-            else:
-                # Fallback: create structured response from text
-                result = {
-                    "context": content,
-                    "primary_goals": ["Extracted from GPT-5 analysis"],
-                    "secondary_goals": [],
-                    "expected_outcomes": ["See context for details"],
-                    "code_touchpoints": [],
-                    "estimated_complexity": 5,
-                    "constraints": [],
-                    "assumptions": []
-                }
-        except json.JSONDecodeError:
-            result = {
+        result = _parse_json_like(content, default={
                 "context": content,
                 "primary_goals": ["Analysis provided in context"],
                 "secondary_goals": [],
@@ -123,11 +119,11 @@ Provide a structured IntentDraft in JSON format:
                 "estimated_complexity": 5,
                 "constraints": [],
                 "assumptions": []
-            }
+            })
         
         return {
             "intent_draft": result,
-            "model": self.models["full"],
+            "model": self.models.get(self.model_key, self.models["full"]),
             "reasoning_level": "medium",
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -175,33 +171,20 @@ Provide enhanced test cases and improvements in JSON format:
 }}"""
         
         response = await self.client.chat.completions.create(
-            model=self.models["full"],
+            model=self.models.get(self.model_key, self.models["full"]),
             messages=[
                 {"role": "system", "content": "You are GPT-5, expert at test-driven development and comprehensive test planning."},
                 {"role": "user", "content": prompt}
             ],
-            reasoning="high",  # High reasoning for test planning
-            verbosity="detailed",
-            temperature=0.5,
-            max_tokens=5000
+            max_completion_tokens=5000
         )
         
         content = response.choices[0].message.content
-        
-        # Parse response
-        try:
-            import re
-            json_match = re.search(r'\{[\s\S]*\}', content)
-            if json_match:
-                result = json.loads(json_match.group())
-            else:
-                result = {"raw_analysis": content}
-        except json.JSONDecodeError:
-            result = {"raw_analysis": content}
+        result = _parse_json_like(content, default={"raw_analysis": content})
         
         return {
             "plan_enhancements": result,
-            "model": self.models["full"],
+            "model": self.models.get(self.model_key, self.models["full"]),
             "reasoning_level": "high",
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -260,41 +243,24 @@ Output in JSON format:
 }}"""
         
         response = await self.client.chat.completions.create(
-            model=self.models["full"],
+            model=self.models.get(self.model_key, self.models["full"]),
             messages=[
                 {"role": "system", "content": "You are GPT-5, evaluating code with expertise achieving 88% on Aider Polyglot benchmark."},
                 {"role": "user", "content": prompt}
             ],
-            reasoning="high",  # High reasoning for evaluation
-            verbosity="comprehensive",
-            temperature=0.3,
-            max_tokens=6000
+            max_completion_tokens=6000
         )
         
         content = response.choices[0].message.content
-        
-        # Parse response
-        try:
-            import re
-            json_match = re.search(r'\{[\s\S]*\}', content)
-            if json_match:
-                result = json.loads(json_match.group())
-            else:
-                result = {
-                    "verdict": "needs_changes",
-                    "raw_evaluation": content,
-                    "confidence": 0.7
-                }
-        except json.JSONDecodeError:
-            result = {
+        result = _parse_json_like(content, default={
                 "verdict": "needs_changes",
                 "raw_evaluation": content,
                 "confidence": 0.7
-            }
+            })
         
         return {
             "evaluation": result,
-            "model": self.models["full"],
+            "model": self.models.get(self.model_key, self.models["full"]),
             "reasoning_level": "high",
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -317,14 +283,14 @@ async def main():
         with open(args.input, 'r') as f:
             input_data = json.load(f)
     except Exception as e:
-        print(f"Error reading input file: {e}", file=sys.stderr)
+        logger.error("error_reading_input", error=str(e))
         sys.exit(1)
     
     # Initialize bridge
     try:
-        bridge = GPT5Bridge(api_key=args.api_key)
+        bridge = GPT5Bridge(api_key=args.api_key, model_key=args.model)
     except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        logger.error("error_initializing_bridge", error=str(e))
         sys.exit(1)
     
     # Process based on phase
@@ -342,10 +308,10 @@ async def main():
         with open(args.output, 'w') as f:
             json.dump(result, f, indent=2)
         
-        print(f"Successfully processed {args.phase} phase. Output written to {args.output}")
+        logger.info("processed", phase=args.phase, output=args.output)
         
     except Exception as e:
-        print(f"Error during processing: {e}", file=sys.stderr)
+        logger.error("error_processing", error=str(e))
         # Write error output
         error_result = {
             "error": str(e),
