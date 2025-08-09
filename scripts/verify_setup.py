@@ -217,7 +217,7 @@ class SetupVerifier:
             print("="*60)
             print("\nNext steps:")
             print("  1. Start Claude Code in this directory")
-            print("  2. Use '#pipeline' prefix for complex tasks")
+            print("  2. Use '@pipeline' prefix for complex tasks")
             print("  3. Monitor with: python scripts/pipeline_monitor.py")
             
             if self.warnings:

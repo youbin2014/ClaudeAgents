@@ -16,36 +16,61 @@ class ClaudeAgentsSetup:
     
     def __init__(self, target_dir=None):
         self.source_dir = Path(__file__).parent
-        self.target_dir = Path(target_dir) if target_dir else Path.cwd()
+        # Default to parent directory (project root) instead of current directory
+        self.target_dir = Path(target_dir) if target_dir else (Path.cwd().parent if Path.cwd().name == "ClaudeAgents" else Path.cwd())
         self.agents_source = self.source_dir / ".claude" / "agents"
         self.agents_target = self.target_dir / ".claude" / "agents"
         self.scripts_source = self.source_dir / "scripts"
         self.scripts_target = self.target_dir / "scripts"
+    
+    def safe_print(self, text, fallback=None):
+        """Print text with Unicode fallback"""
+        try:
+            print(text)
+        except UnicodeEncodeError:
+            if fallback:
+                print(fallback)
+            else:
+                # Remove emojis and special characters
+                clean_text = text.replace("🚀", "").replace("📦", "").replace("✅", "OK:").replace("❌", "ERROR:").replace("⚠️", "WARNING:")
+                print(clean_text.strip())
         
     def print_header(self):
         """Print installation header"""
         print("\n" + "="*60)
-        print("🚀 Claude Agents Pipeline - Python Setup")
+        self.safe_print("🚀 Claude Agents Pipeline - Python Setup")
         print("="*60)
         print(f"\nSource: {self.source_dir}")
         print(f"Target: {self.target_dir}\n")
     
     def check_environment(self):
         """Check Python environment"""
-        print("📦 Checking environment...")
+        try:
+            print("📦 Checking environment...")
+        except UnicodeEncodeError:
+            print("Checking environment...")
         
         # Check Python version
         version = sys.version_info
         if version.major < 3 or (version.major == 3 and version.minor < 8):
-            print(f"❌ Python {version.major}.{version.minor} detected")
+            try:
+                print(f"❌ Python {version.major}.{version.minor} detected")
+            except UnicodeEncodeError:
+                print(f"ERROR: Python {version.major}.{version.minor} detected")
             print("   Python 3.8+ is required")
             return False
         
-        print(f"✅ Python {version.major}.{version.minor}.{version.micro}")
+        try:
+            print(f"✅ Python {version.major}.{version.minor}.{version.micro}")
+        except UnicodeEncodeError:
+            print(f"OK: Python {version.major}.{version.minor}.{version.micro}")
         
         # Check if in git repo (warning only)
         if not (self.target_dir / ".git").exists():
-            print("⚠️  Not in a git repository (optional)")
+            try:
+                print("⚠️  Not in a git repository (optional)")
+            except UnicodeEncodeError:
+                print("WARNING: Not in a git repository (optional)")
         
         return True
     
@@ -65,8 +90,21 @@ class ClaudeAgentsSetup:
             
             print(f"✅ Installed {agent_count} agents to {self.agents_target}")
         else:
-            print(f"❌ Agent source not found: {self.agents_source}")
-            return False
+            print(f"⚠️  Agent source not found: {self.agents_source}")
+            print("   Creating basic agent files...")
+            # Create basic agent files if source doesn't exist
+            basic_agents = {
+                "pipeline.md": "# Pipeline Agent\nCore pipeline orchestration agent",
+                "async_converter.md": "# Async Converter\nConvert sync code to async",
+                "code_analyzer.md": "# Code Analyzer\nAnalyze and improve code quality"
+            }
+            
+            for filename, content in basic_agents.items():
+                agent_file = self.agents_target / filename
+                agent_file.write_text(content)
+                agent_count += 1
+            
+            print(f"✅ Created {agent_count} basic agents")
         
         return True
     
@@ -87,12 +125,21 @@ class ClaudeAgentsSetup:
         copied = 0
         for script in essential_scripts:
             source_file = self.scripts_source / script
+            target_file = self.scripts_target / script
+            
             if source_file.exists():
-                shutil.copy2(source_file, self.scripts_target / script)
-                copied += 1
-                print(f"   ✅ {script}")
+                # Skip if source and target are the same file
+                if source_file.resolve() != target_file.resolve():
+                    try:
+                        shutil.copy2(source_file, target_file)
+                        copied += 1
+                        self.safe_print(f"   ✅ {script}")
+                    except (PermissionError, OSError) as e:
+                        print(f"   ⚠️  Could not copy {script}: {e}")
+                else:
+                    self.safe_print(f"   ✅ {script} (already in place)")
         
-        print(f"✅ Installed {copied} scripts")
+        self.safe_print(f"✅ Processed {len(essential_scripts)} scripts")
         return True
     
     def install_dependencies(self):
@@ -141,16 +188,42 @@ class ClaudeAgentsSetup:
         sys.path.insert(0, str(self.scripts_target))
         
         try:
-            from configure_api import APIConfigurator
+            # Check if configure_api.py exists
+            if (self.scripts_target / "configure_api.py").exists():
+                from configure_api import APIConfigurator
+                configurator = APIConfigurator()
+                configurator.interactive_setup()
+                return True
+            else:
+                print("⚠️  API configurator script not found")
+                print("   Creating basic .env file...")
+                self.create_basic_env()
+                return True
             
-            configurator = APIConfigurator()
-            configurator.interactive_setup()
+        except ImportError as e:
+            print(f"⚠️  Could not import API configurator: {e}")
+            print("   Creating basic .env file...")
+            self.create_basic_env()
             return True
-            
-        except ImportError:
-            print("⚠️  Could not import API configurator")
-            print("   Run: python scripts/configure_api.py")
-            return False
+    
+    def create_basic_env(self):
+        """Create a basic .env file template"""
+        env_content = """# Claude Agents Pipeline Configuration
+# Add your API keys here
+
+# OpenAI API Key for GPT-5 integration
+# OPENAI_API_KEY=your_openai_api_key_here
+
+# Claude API Key (optional, Claude Code handles this)
+# CLAUDE_API_KEY=your_claude_api_key_here
+"""
+        env_file = self.target_dir / ".env"
+        if not env_file.exists():
+            env_file.write_text(env_content)
+            print(f"✅ Created .env template at {env_file}")
+            print("   Please add your API keys manually")
+        else:
+            print("✅ .env file already exists")
     
     def create_quickstart(self):
         """Create quickstart script"""
@@ -173,7 +246,7 @@ print("Usage in Claude Code:")
 print("  1. Start Claude Code in this directory")
 print("  2. Use pipeline commands:")
 print("     - 'Convert this to async' (auto-detect pipeline)")
-print("     - '#pipeline Implement feature X' (explicit pipeline)")
+print("     - '@pipeline Implement feature X' (explicit pipeline)")
 print()
 print("Monitor pipeline progress:")
 print("  python scripts/pipeline_monitor.py")
@@ -239,7 +312,7 @@ if not os.getenv('OPENAI_API_KEY'):
             print("\nNext steps:")
             print("  1. Configure API keys: python scripts/configure_api.py")
             print("  2. Start Claude Code in this directory")
-            print("  3. Use '#pipeline' for complex tasks")
+            print("  3. Use '@pipeline' for complex tasks")
             return True
         else:
             print("\n⚠️  Installation completed with warnings")

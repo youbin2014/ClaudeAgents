@@ -73,7 +73,7 @@ claude /path/to/your/project
 
 ```
 # 强制使用完整流水线
-"#pipeline 将这个同步模块转换为异步版本，并添加全面的测试覆盖"
+"@pipeline 将这个同步模块转换为异步版本，并添加全面的测试覆盖"
 
 # 强制使用快速模式
 "#quick 解释一下这段代码的作用"
@@ -235,7 +235,7 @@ Claude Code的日志通常位于：
 ## 🎯 最佳实践
 
 1. **明确描述需求**: 越具体的描述，系统分析越准确
-2. **合理使用标签**: 复杂任务用 `#pipeline`，简单问题用 `#quick`
+2. **合理使用标签**: 复杂任务用 `@pipeline`，简单问题用 `#quick`
 3. **迭代优化**: 根据结果调整agent配置和提示词
 4. **测试驱动**: 让系统专注于TDD方法论
 5. **监控性能**: 关注token使用和响应时间
@@ -267,7 +267,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Claude Code Review
         run: |
-          claude "#pipeline Review this PR for code quality and test coverage"
+          claude "@pipeline Review this PR for code quality and test coverage"
 ```
 
 ## 📚 更多资源
@@ -282,7 +282,7 @@ jobs:
 ## 💡 小贴士
 
 - 系统会学习你的使用模式，越用越智能
-- 可以随时用 `#quick` 或 `#pipeline` 覆盖自动判断
+- 可以随时用 `#quick` 或 `@pipeline` 覆盖自动判断
 - GPT-5集成是可选的，没有API密钥也能正常工作
 - 定期更新subagent配置以适应项目需求变化
 

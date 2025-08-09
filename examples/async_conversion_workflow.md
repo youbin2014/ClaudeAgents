@@ -5,20 +5,20 @@ This example demonstrates how the multi-agent pipeline handles a real-world task
 ## Initial Request
 
 ```
-User: "#pipeline Convert the user authentication module to async and add comprehensive unit tests"
+User: "@pipeline Convert the user authentication module to async and add comprehensive unit tests"
 ```
 
 ## Pipeline Execution Flow
 
 ### Stage 1: Routing (router)
 
-**Input**: User query with #pipeline tag  
+**Input**: User query with @pipeline tag  
 **Decision**:
 ```json
 {
   "mode": "pipeline",
   "override_detected": true,
-  "reasons": ["Manual override tag #pipeline detected"],
+  "reasons": ["Manual override tag @pipeline detected"],
   "confidence": 1.0,
   "complexity_score": 0.75
 }
@@ -290,7 +290,7 @@ Comprehensive plan combining:
 
 ```bash
 # In Claude Code, simply paste:
-"#pipeline Convert the user authentication module to async and add comprehensive unit tests"
+"@pipeline Convert the user authentication module to async and add comprehensive unit tests"
 
 # Or invoke the orchestrator directly:
 @orchestrator execute pipeline for: "Convert auth module to async with tests"

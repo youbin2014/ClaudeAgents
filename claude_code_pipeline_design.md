@@ -62,7 +62,7 @@ Each stage uses a structured handoff format. See below for examples:
 
 ### `RouterDecision`
 ```json
-{"mode": "pipeline", "override_detected": true, "reasons": ["User added #pipeline"]}
+{"mode": "pipeline", "override_detected": true, "reasons": ["User added @pipeline"]}
 ```
 
 ### `IntentDraft`

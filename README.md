@@ -20,7 +20,7 @@ git clone https://github.com/youbin2014/ClaudeAgents.git
 cd ClaudeAgents && ./install.sh && cd ..
 
 # 3. Start using the pipeline
-claude-code  # Then use '#pipeline' commands
+claude-code  # Then use '@pipeline' commands
 ```
 
 The installer will:
@@ -201,7 +201,7 @@ Start a Claude Code session and trigger the pipeline:
 "Convert this module to async and add comprehensive tests"
 
 # Explicit pipeline mode  
-"#pipeline Convert this authentication system to use JWT tokens"
+"@pipeline Convert this authentication system to use JWT tokens"
 ```
 
 The system automatically detects complex development tasks and routes them through the appropriate pipeline stages.
@@ -326,7 +326,7 @@ Your custom agent prompt and instructions here...
 - Ensure `scripts/gpt5_bridge.py` has execute permissions
 
 **Pipeline not triggering**
-- Try explicit pipeline mode with `#pipeline` prefix
+- Try explicit pipeline mode with `@pipeline` prefix
 - Check that task complexity meets pipeline criteria
 
 ### Verification Steps
