@@ -1,142 +1,66 @@
-# Claude Code Subagent Pipeline
+# 🚀 Claude Agents Pipeline
 
-A sophisticated multi-agent development workflow system built on **Claude Code Sub-Agents** using Markdown-based agent definitions.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/youbin2014/ClaudeAgents)
 
-## Overview
+> **智能多步骤任务处理系统** - 为Claude Code提供专业的pipeline执行能力
 
-This system implements a comprehensive development pipeline using Claude Code's subagent architecture. It orchestrates multiple specialized AI agents to handle complex development tasks through intent analysis, TDD planning, development execution, and evaluation phases with automatic rollback capabilities.
+## 🎯 核心特性
 
-## 🎯 Production Deployment (One-Click Installation)
+- **🎯 智能路由** - 自动选择最佳执行模式
+- **🔄 异步转换** - 专业的同步→异步代码转换  
+- **🏗️ 多步骤管道** - 复杂任务的结构化处理
+- **🚀 跨平台支持** - Windows/WSL, Linux, macOS
+- **🛡️ 完全兼容** - 与Claude Code Memory系统无冲突
 
-### Quick Start for Production Projects
+## ⚡ 快速开始
 
-When working in a production repository, you can quickly integrate Claude Agents:
+### 一键安装
 
 ```bash
-# 1. Clone ClaudeAgents into your project
 git clone https://github.com/youbin2014/ClaudeAgents.git
-
-# 2. Run the one-click installer
-cd ClaudeAgents && ./install.sh && cd ..
-
-# 3. Start using the pipeline
-claude-code  # Then use '@pipeline' commands
+cd ClaudeAgents
+bash install.sh
 ```
 
-The installer will:
-- ✅ Install agents to `.claude/agents/`
-- ✅ Set up necessary scripts
-- ✅ Configure GPT-5 API key (interactive prompt)
-- ✅ Install Python dependencies
-- ✅ Create quickstart script
+### 配置API密钥
 
-### Alternative: Python Setup
-
-If you prefer Python over bash:
-
+编辑生成的 `.env` 文件：
 ```bash
-# Clone and setup with Python
-git clone https://github.com/youbin2014/ClaudeAgents.git
-python ClaudeAgents/setup.py
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-### API Key Configuration
-
-The installer automatically prompts for GPT-5 API key. You can also configure it manually:
-
+或使用配置工具：
 ```bash
-# Interactive configuration
 python scripts/configure_api.py
-
-# Or set directly
-python scripts/configure_api.py --set OPENAI_API_KEY=sk-...
-
-# Check configuration status
-python scripts/configure_api.py --check
 ```
 
-**Note**: If no GPT-5 API key is provided, the pipeline will still work but without GPT-5 enhancement features.
+## 🎮 使用方法
 
-## 🚀 Key Features
+### 触发方式（重要变更）
 
-- **Markdown-Based Subagents**: Agents defined in `.md` files with YAML frontmatter
-- **Intelligent Routing**: Automatic query routing between quick responses and full pipeline
-- **TDD Methodology**: Test-Driven Development with comprehensive coverage
-- **Dual LLM Integration**: Combines Claude and GPT-5 capabilities
-- **Automatic Rollback**: Safe recovery when evaluation fails
-- **Structured Handoffs**: JSON schema for agent communication
+**不再使用 `#pipeline`** - 避免与Claude Code Memory冲突
 
-## 🔧 Installation & Setup
+**新的触发方式**：
+- `@pipeline` - 强制使用复杂任务pipeline模式
+- `@quick` - 强制使用快速响应模式  
+- 自动检测 - 不加前缀时系统自动判断
 
-### For New Environments
+### 使用示例
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/your-username/ClaudeAgents.git
-   cd ClaudeAgents
-   ```
+```bash
+# 复杂任务 - 明确指定pipeline
+@pipeline Convert this authentication system to async with comprehensive tests
 
-2. **Set up Claude Code Subagents**
-   Choose one of the following methods:
+# 快速查询 - 明确指定快速模式
+@quick What is the syntax for async functions?
 
-   **Option A: Global Installation (Recommended)**
-   ```bash
-   # Copy agents to your global Claude Code directory
-   mkdir -p ~/.claude/agents
-   cp -r .claude/agents/* ~/.claude/agents/
-   ```
+# 自动检测 - 系统根据复杂度判断
+Convert this function to use modern async patterns
+```
 
-   **Option B: Project-Level Installation**
-   ```bash
-   # Keep agents in your project directory
-   # Claude Code will automatically detect .claude/agents/ in your project
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure API Keys**
-   ```bash
-   # Required for Claude Code
-   export CLAUDE_API_KEY=your_claude_key
-   
-   # Optional: For GPT-5 integration (enhanced planning and evaluation)
-   export OPENAI_API_KEY=your_openai_key
-   ```
-
-5. **Verify Installation**
-   ```bash
-   # Start Claude Code in your project directory
-   claude-code
-   
-   # Test the pipeline with a simple query
-   "Convert this function to async"
-   ```
-
-### Integration with Existing Claude Code Setup
-
-If you already have Claude Code configured:
-
-1. **Backup Existing Agents** (if any)
-   ```bash
-   cp -r ~/.claude/agents ~/.claude/agents.backup
-   ```
-
-2. **Install ClaudeAgents**
-   ```bash
-   git clone https://github.com/your-username/ClaudeAgents.git
-   cd ClaudeAgents
-   cp -r .claude/agents/* ~/.claude/agents/
-   ```
-
-3. **Install Additional Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## 🏗️ Architecture
+## 🏗️ 架构
 
 ```
 User Query → Router → Intent Analysis → Planning → Development → Evaluation
@@ -144,116 +68,111 @@ User Query → Router → Intent Analysis → Planning → Development → Evalu
             Quick Response                                      Rollback (if failed)
 ```
 
-## 🤖 Subagent Pipeline
+## 🤖 Pipeline阶段
 
-### Stage 0: Routing
-- **`router`**: Decides between quick response or full pipeline mode
+### Stage 0: 路由
+- **`router`**: 决定快速响应或完整pipeline模式
 
-### Stage 1: Intent Understanding
-- **`intent-cc`**: Claude analyzes user intent and code context
-- **`intent-gpt5`**: GPT-5 focuses on code touchpoints and technical details
-- **`intent-merge-cc`**: Merges insights into comprehensive intent analysis
+### Stage 1: 意图理解
+- **`intent-cc`**: Claude分析用户意图和代码上下文
+- **`intent-gpt5`**: GPT-5专注代码接触点和技术细节
+- **`intent-merge-cc`**: 合并洞察为综合意图分析
 
-### Stage 2: Planning (TDD-First)
-- **`plan-cc`**: Claude generates test-driven development plan
-- **`plan-gpt5`**: GPT-5 enhances with edge cases and boundary testing
-- **`plan-merge-cc`**: Creates final comprehensive development plan
+### Stage 2: 规划 (TDD优先)
+- **`plan-cc`**: Claude生成测试驱动开发计划
+- **`plan-gpt5`**: GPT-5增强边界情况和边界测试
+- **`plan-merge-cc`**: 创建最终综合开发计划
 
-### Stage 3: Development
-- **`dev-cc`**: Executes development following TDD methodology
+### Stage 3: 开发
+- **`dev-cc`**: 遵循TDD方法论执行开发
 
-### Stage 4: Evaluation
-- **`eval-gpt5`**: GPT-5 evaluates results and test coverage
+### Stage 4: 评估
+- **`eval-gpt5`**: GPT-5评估结果和测试覆盖率
 
-### Stage 5: Rollback (If Needed)
-- **`rollback-cc`**: Safely reverts changes when evaluation fails
+### Stage 5: 回滚 (如需要)
+- **`rollback-cc`**: 评估失败时安全恢复更改
 
-## 📁 Project Structure
+## 📁 项目结构
 
 ```
-.claude/agents/          # Claude Code subagent definitions
-├── router.md           # Query routing logic
-├── intent-cc.md        # Claude intent analysis
-├── intent-gpt5.md      # GPT-5 intent analysis
-├── intent-merge-cc.md  # Intent merging
-├── plan-cc.md          # Claude planning
-├── plan-gpt5.md        # GPT-5 planning
-├── plan-merge-cc.md    # Plan merging
-├── dev-cc.md           # Development execution
-├── eval-gpt5.md        # GPT-5 evaluation
-└── rollback-cc.md      # Rollback handling
+.claude/agents/          # Claude Code子代理定义
+├── router.md           # 查询路由逻辑
+├── intent-cc.md        # Claude意图分析
+├── intent-gpt5.md      # GPT-5意图分析
+├── intent-merge-cc.md  # 意图合并
+├── plan-cc.md          # Claude规划
+├── plan-gpt5.md        # GPT-5规划
+├── plan-merge-cc.md    # 计划合并
+├── dev-cc.md           # 开发执行
+├── eval-gpt5.md        # GPT-5评估
+└── rollback-cc.md      # 回滚处理
 
 scripts/
-└── gpt5_bridge.py      # GPT-5 integration script
-
-examples/
-└── async_conversion_workflow.md  # Example workflow
+└── gpt5_bridge.py      # GPT-5集成脚本
 ```
 
-## 🚀 Usage
+## 🔧 安装方法
 
-### Running the Pipeline
-
-Start a Claude Code session and trigger the pipeline:
+### 方法1: 统一安装脚本（推荐）
 
 ```bash
-# Automatic pipeline detection
-"Convert this module to async and add comprehensive tests"
-
-# Explicit pipeline mode  
-"@pipeline Convert this authentication system to use JWT tokens"
+cd ClaudeAgents
+bash install.sh
 ```
 
-The system automatically detects complex development tasks and routes them through the appropriate pipeline stages.
+统一脚本会：
+- ✅ 自动检测系统（Windows/WSL, Linux, macOS）
+- ✅ 自动修复Windows换行符问题
+- ✅ 智能寻找合适的Python版本
+- ✅ 处理系统特定的pip安装
+- ✅ 安装到正确的父目录
+- ✅ 创建系统适配的启动脚本
 
-### 📊 Monitoring Pipeline Progress
+### 方法2: 备用Python安装
 
-The pipeline now includes enhanced visibility features:
+如果bash不可用：
 
-#### 1. **Built-in Agent Status Display**
-Each agent will display its status when active:
+```bash
+# 简化Python安装（跨平台）
+cd ClaudeAgents
+python setup_simple.py
+```
+
+## 安装后文件结构
+
+```
+项目目录/
+├── .claude/
+│   └── agents/           # Claude Code agent文件
+├── scripts/              # 支持脚本
+│   ├── gpt5_bridge.py
+│   ├── pipeline_monitor.py
+│   └── configure_api.py
+└── .env                  # 环境变量配置
+```
+
+## 📊 监控Pipeline进度
+
+### 内置代理状态显示
 ```
 ╔══════════════════════════════════════════════════════╗
 ║  🔍 INTENT ANALYSIS AGENT (CLAUDE) - ACTIVE         ║
 ║  Stage: 1/5 - Intent Understanding                   ║
-║  Step: 1.1/1.3 - Claude Analysis                    ║
 ╚══════════════════════════════════════════════════════╝
-
-⏳ Status: Analyzing user request and codebase...
 ```
 
-#### 2. **Pipeline Monitor Tool**
-Use the monitoring script for real-time pipeline tracking:
-
+### Pipeline监控工具
 ```bash
-# Start live monitoring (updates every 2 seconds)
+# 启动实时监控
 python scripts/pipeline_monitor.py
 
-# Check status once
+# 检查状态一次
 python scripts/pipeline_monitor.py --once
-
-# Custom refresh interval
-python scripts/pipeline_monitor.py --refresh 5
 ```
-
-The monitor displays:
-- Current active agent
-- Stage progress (Intent → Planning → Development → Evaluation)
-- Overall completion percentage
-- Estimated time remaining
-- Agent execution times
-
-#### 3. **Pipeline Artifacts**
-Check the `pipeline_artifacts/` directory for:
-- `pipeline_state.json` - Current pipeline state
-- `intent_draft.json` - Intent analysis results
-- `final_plan.json` - Development plan
-- `dev_result.json` - Development outcomes
-- `eval_report.json` - Evaluation results
 
 ## 📊 JSON Schema
 
-The system uses structured JSON for agent communication:
+系统使用结构化JSON进行代理通信：
 
 ### RouterDecision
 ```json
@@ -278,29 +197,60 @@ The system uses structured JSON for agent communication:
 }
 ```
 
-## 🛠️ GPT-5 Integration
+## 🛠️ GPT-5集成
 
-The system includes a bridge script for GPT-5 integration:
+包含GPT-5集成桥接脚本：
 
 ```bash
 python scripts/gpt5_bridge.py --phase intent --input intent_cc.json --output intent_gpt5.json
 ```
 
-## 🧪 TDD Focus
+## 🧪 TDD焦点
 
-All development follows Test-Driven Development:
-- Tests written before implementation
-- Comprehensive test coverage validation
-- Real test execution and verification
-- Automated test result evaluation
+所有开发遵循测试驱动开发：
+- 实现前编写测试
+- 全面测试覆盖率验证
+- 真实测试执行和验证
+- 自动化测试结果评估
 
-## 📖 Example Workflow
+## 🔍 故障排除
 
-See `examples/async_conversion_workflow.md` for a complete example of converting a synchronous module to async with comprehensive testing.
+### 常见问题
 
-## 🔧 Customization
+**找不到代理**
+- 确保代理在 `~/.claude/agents/` 或 `.claude/agents/` 中
+- 检查文件权限和命名
 
-Each subagent can be customized by editing its Markdown file:
+**GPT-5集成不工作**
+- 验证 `OPENAI_API_KEY` 设置正确
+- 确保 `scripts/gpt5_bridge.py` 有执行权限
+
+**Pipeline未触发**
+- 尝试使用 `@pipeline` 前缀显式pipeline模式
+- 检查任务复杂度是否满足pipeline标准
+
+### 验证步骤
+
+1. **检查代理安装**
+   ```bash
+   ls ~/.claude/agents/
+   # 应显示: router.md, intent-cc.md, etc.
+   ```
+
+2. **测试Claude Code集成**
+   ```bash
+   claude-code --version
+   # 验证Claude Code工作正常
+   ```
+
+3. **验证依赖**
+   ```bash
+   python -c "import openai; print('OpenAI package available')"
+   ```
+
+## 🔧 自定义
+
+可通过编辑Markdown文件自定义每个子代理：
 
 ```markdown
 ---
@@ -313,51 +263,10 @@ model: sonnet
 Your custom agent prompt and instructions here...
 ```
 
-## 🔍 Troubleshooting
+## 🤝 贡献
 
-### Common Issues
+这是一个使用Claude Code子代理系统创建复杂开发工作流的框架。欢迎扩展和自定义以满足您的特定需求。
 
-**Agents not found**
-- Ensure agents are in `~/.claude/agents/` or `.claude/agents/` 
-- Check file permissions and naming
-
-**GPT-5 integration not working**
-- Verify `OPENAI_API_KEY` is set correctly
-- Ensure `scripts/gpt5_bridge.py` has execute permissions
-
-**Pipeline not triggering**
-- Try explicit pipeline mode with `@pipeline` prefix
-- Check that task complexity meets pipeline criteria
-
-### Verification Steps
-
-1. **Check Agent Installation**
-   ```bash
-   ls ~/.claude/agents/
-   # Should show: router.md, intent-cc.md, etc.
-   ```
-
-2. **Test Claude Code Integration**
-   ```bash
-   claude-code --version
-   # Verify Claude Code is working
-   ```
-
-3. **Validate Dependencies**
-   ```bash
-   python -c "import openai; print('OpenAI package available')"
-   ```
-
-## 📚 Documentation
-
-- `claude_code_pipeline_design.md`: Detailed system design
-- `examples/`: Workflow examples and patterns
-- `docs/`: Additional documentation
-
-## 🤝 Contributing
-
-This is a framework for creating sophisticated development workflows using Claude Code's subagent system. Feel free to extend and customize for your specific needs.
-
-## 📄 License
+## 📄 许可证
 
 MIT
