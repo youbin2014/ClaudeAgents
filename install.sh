@@ -171,7 +171,7 @@ EOF
         cat > "$CLAUDE_AGENTS_DIR/router.md" << 'EOF'
 # Router Agent  
 Routes queries to appropriate execution mode based on complexity analysis.
-Supports @quick and @pipeline override tags.
+Supports >>quick and >>pipeline override tags.
 EOF
         
         agent_count=3
@@ -311,7 +311,7 @@ echo Usage in Claude Code:
 echo   1. Start Claude Code in this directory
 echo   2. Use pipeline commands:
 echo      - "Convert this to async" (auto-detect)
-echo      - "@pipeline Implement feature X" (explicit)
+echo      - ">>pipeline Implement feature X" (explicit)
 echo.
 pause
 EOF
@@ -333,7 +333,7 @@ echo "Usage in Claude Code:"
 echo "  1. Start Claude Code in this directory"  
 echo "  2. Use pipeline commands:"
 echo "     - 'Convert this to async' (auto-detect)"
-echo "     - '@pipeline Implement feature X' (explicit)"
+echo "     - '>>pipeline Implement feature X' (explicit)"
 echo ""
 echo "Monitor pipeline: python scripts/pipeline_monitor.py"
 echo ""
@@ -458,8 +458,8 @@ main() {
         print_msg "${BOLD}Next steps:${NC}" "$BLUE"
         print_msg "1. Add your OPENAI_API_KEY to $CONFIG_FILE" "$NC"
         print_msg "2. Start Claude Code in the target directory" "$NC"
-        print_msg "3. Use '@pipeline' prefix for complex tasks" "$NC"
-        print_msg "4. Use '@quick' prefix to force quick responses" "$NC"
+        print_msg "3. Use '>>pipeline' prefix for complex tasks" "$NC"
+        print_msg "4. Use '>>quick' prefix to force quick responses" "$NC"
         echo ""
         print_msg "📚 Check INSTALL_GUIDE.md for detailed usage information" "$BLUE"
         

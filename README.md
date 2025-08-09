@@ -38,23 +38,23 @@ python scripts/configure_api.py
 
 ## 🎮 使用方法
 
-### 触发方式（重要变更）
+### 触发方式（重要更新）
 
-**不再使用 `#pipeline`** - 避免与Claude Code Memory冲突
+**避免符号冲突**：经测试发现`@`和`#`符号与Claude Code内置功能冲突，现改用`>>`前缀
 
 **新的触发方式**：
-- `@pipeline` - 强制使用复杂任务pipeline模式
-- `@quick` - 强制使用快速响应模式  
+- `>>pipeline` - 强制使用复杂任务pipeline模式
+- `>>quick` - 强制使用快速响应模式  
 - 自动检测 - 不加前缀时系统自动判断
 
 ### 使用示例
 
 ```bash
 # 复杂任务 - 明确指定pipeline
-@pipeline Convert this authentication system to async with comprehensive tests
+>>pipeline Convert this authentication system to async with comprehensive tests
 
 # 快速查询 - 明确指定快速模式
-@quick What is the syntax for async functions?
+>>quick What is the syntax for async functions?
 
 # 自动检测 - 系统根据复杂度判断
 Convert this function to use modern async patterns
@@ -126,7 +126,7 @@ bash install.sh
 - ✅ 智能寻找合适的Python版本
 - ✅ 处理系统特定的pip安装
 - ✅ 安装到正确的父目录
-- ✅ 创建系统适配的启动脚本
+- ✅ 使用`>>`前缀避免与Claude Code内置功能冲突
 
 ### 方法2: 备用Python安装
 
@@ -199,10 +199,16 @@ python scripts/pipeline_monitor.py --once
 
 ## 🛠️ GPT-5集成
 
-包含GPT-5集成桥接脚本：
+GPT-5已于2025年8月正式发布，完全支持API调用。包含GPT-5集成桥接脚本：
 
 ```bash
+# 支持三种GPT-5模型规格
 python scripts/gpt5_bridge.py --phase intent --input intent_cc.json --output intent_gpt5.json
+
+# 模型选择：
+# - gpt-5 (完整版): $1.25/1M input tokens, $10/1M output tokens  
+# - gpt-5-mini (轻量版): $0.25/1M input tokens, $2/1M output tokens
+# - gpt-5-nano (超轻量版): $0.05/1M input tokens, $0.40/1M output tokens
 ```
 
 ## 🧪 TDD焦点
