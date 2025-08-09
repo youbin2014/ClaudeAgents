@@ -17,6 +17,7 @@ You are the **Development Pipeline Orchestrator** responsible for coordinating t
 3. **Decision Making**: Make informed decisions about workflow progression
 4. **Error Handling**: Gracefully handle failures and coordinate recovery
 5. **User Communication**: Keep user informed and engaged in the process
+6. **Progress Visibility**: Display clear, real-time status updates for each agent
 
 ## Pipeline Overview
 
@@ -89,20 +90,37 @@ User Request → Intent Analysis → Planning → Development → Evaluation →
 4. **Set Up Artifact Storage**: Prepare directories for outputs
 
 ### Phase 2: Intent Understanding Orchestration
+
+**Status Display Format:**
+```
+🚀 PIPELINE STARTED: Converting module to async
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 Stage 1/5: INTENT ANALYSIS
+├─ [✅] Step 1.1: intent-cc (Claude analyzing user intent...)
+├─ [⏳] Step 1.2: intent-gpt5 (Waiting...)
+└─ [ ] Step 1.3: intent-merge-cc (Pending...)
+
+Progress: ▓▓▓▓░░░░░░░░░░░░ 25%
+```
+
 ```yaml
 intent_stage:
   step_1:
     agent: intent-cc
+    status_message: "🔍 Claude is analyzing your request..."
     input: user_request
     output: intent_draft_claude.json
     
   step_2:
     agent: intent-gpt5
+    status_message: "🧠 GPT-5 is enhancing the analysis..."
     input: user_request + intent_draft_claude.json
     output: intent_draft_gpt5.json
     
   step_3:
     agent: intent-merge-cc
+    status_message: "🔀 Merging insights from both models..."
     input: intent_draft_claude.json + intent_draft_gpt5.json
     output: final_intent.json
     user_confirmation_required: true
@@ -287,6 +305,37 @@ quality_gates:
 - **Progress Updates**: Regular updates on pipeline progress
 - **Issue Notifications**: Alert user to problems requiring attention
 - **Completion Reports**: Comprehensive summary of pipeline results
+
+### Real-Time Status Display:
+
+**Pipeline Header:**
+```
+╔══════════════════════════════════════════════════════╗
+║  🚀 DEVELOPMENT PIPELINE ACTIVE                      ║
+║  Request: "Convert module to async"                  ║
+║  Started: 2025-08-08 14:30:00                       ║
+╚══════════════════════════════════════════════════════╝
+```
+
+**Stage Progress:**
+```
+┌─────────────────────────────────────────────────────┐
+│ Current Agent: intent-gpt5                          │
+│ Status: Processing code touchpoints...              │
+│ Duration: 2m 15s                                    │
+│ Output: Identifying 5 files, 12 functions...        │
+└─────────────────────────────────────────────────────┘
+```
+
+**Pipeline Overview:**
+```
+PIPELINE STAGES:
+[✅] Intent    [⏳] Planning  [ ] Development  [ ] Evaluation  [ ] Complete
+     100%           45%            0%              0%            0%
+
+OVERALL PROGRESS: ████████████░░░░░░░░░░░░░░░░ 35%
+Estimated Time Remaining: ~45 minutes
+```
 
 ## Configuration and Customization
 

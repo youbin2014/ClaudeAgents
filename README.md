@@ -6,6 +6,57 @@ A sophisticated multi-agent development workflow system built on **Claude Code S
 
 This system implements a comprehensive development pipeline using Claude Code's subagent architecture. It orchestrates multiple specialized AI agents to handle complex development tasks through intent analysis, TDD planning, development execution, and evaluation phases with automatic rollback capabilities.
 
+## 🎯 Production Deployment (One-Click Installation)
+
+### Quick Start for Production Projects
+
+When working in a production repository, you can quickly integrate Claude Agents:
+
+```bash
+# 1. Clone ClaudeAgents into your project
+git clone https://github.com/youbin2014/ClaudeAgents.git
+
+# 2. Run the one-click installer
+cd ClaudeAgents && ./install.sh && cd ..
+
+# 3. Start using the pipeline
+claude-code  # Then use '#pipeline' commands
+```
+
+The installer will:
+- ✅ Install agents to `.claude/agents/`
+- ✅ Set up necessary scripts
+- ✅ Configure GPT-5 API key (interactive prompt)
+- ✅ Install Python dependencies
+- ✅ Create quickstart script
+
+### Alternative: Python Setup
+
+If you prefer Python over bash:
+
+```bash
+# Clone and setup with Python
+git clone https://github.com/youbin2014/ClaudeAgents.git
+python ClaudeAgents/setup.py
+```
+
+### API Key Configuration
+
+The installer automatically prompts for GPT-5 API key. You can also configure it manually:
+
+```bash
+# Interactive configuration
+python scripts/configure_api.py
+
+# Or set directly
+python scripts/configure_api.py --set OPENAI_API_KEY=sk-...
+
+# Check configuration status
+python scripts/configure_api.py --check
+```
+
+**Note**: If no GPT-5 API key is provided, the pipeline will still work but without GPT-5 enhancement features.
+
 ## 🚀 Key Features
 
 - **Markdown-Based Subagents**: Agents defined in `.md` files with YAML frontmatter
@@ -141,6 +192,8 @@ examples/
 
 ## 🚀 Usage
 
+### Running the Pipeline
+
 Start a Claude Code session and trigger the pipeline:
 
 ```bash
@@ -152,6 +205,51 @@ Start a Claude Code session and trigger the pipeline:
 ```
 
 The system automatically detects complex development tasks and routes them through the appropriate pipeline stages.
+
+### 📊 Monitoring Pipeline Progress
+
+The pipeline now includes enhanced visibility features:
+
+#### 1. **Built-in Agent Status Display**
+Each agent will display its status when active:
+```
+╔══════════════════════════════════════════════════════╗
+║  🔍 INTENT ANALYSIS AGENT (CLAUDE) - ACTIVE         ║
+║  Stage: 1/5 - Intent Understanding                   ║
+║  Step: 1.1/1.3 - Claude Analysis                    ║
+╚══════════════════════════════════════════════════════╝
+
+⏳ Status: Analyzing user request and codebase...
+```
+
+#### 2. **Pipeline Monitor Tool**
+Use the monitoring script for real-time pipeline tracking:
+
+```bash
+# Start live monitoring (updates every 2 seconds)
+python scripts/pipeline_monitor.py
+
+# Check status once
+python scripts/pipeline_monitor.py --once
+
+# Custom refresh interval
+python scripts/pipeline_monitor.py --refresh 5
+```
+
+The monitor displays:
+- Current active agent
+- Stage progress (Intent → Planning → Development → Evaluation)
+- Overall completion percentage
+- Estimated time remaining
+- Agent execution times
+
+#### 3. **Pipeline Artifacts**
+Check the `pipeline_artifacts/` directory for:
+- `pipeline_state.json` - Current pipeline state
+- `intent_draft.json` - Intent analysis results
+- `final_plan.json` - Development plan
+- `dev_result.json` - Development outcomes
+- `eval_report.json` - Evaluation results
 
 ## 📊 JSON Schema
 

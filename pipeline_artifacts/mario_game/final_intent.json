@@ -1,0 +1,114 @@
+{
+  "merge_agent": "intent-merge-cc",
+  "timestamp": "2025-08-09T14:45:00Z",
+  "synthesis_summary": "Unified intent combining gameplay focus with performance optimization",
+  
+  "final_intent": "Create a high-performance 2D Super Mario-style platformer with clean architecture and comprehensive testing",
+  
+  "unified_requirements": {
+    "game_type": "2D side-scrolling platformer",
+    "reference_game": "Super Mario Bros mechanics",
+    "implementation_location": "subdirectory: super_mario_game/",
+    "complexity_level": "high",
+    "platform": "HTML5 Canvas + JavaScript ES2022+",
+    "performance_target": "60fps consistent, <100MB memory",
+    "architecture_style": "Modular with clear separation of concerns"
+  },
+  
+  "core_game_systems": [
+    "Player character with physics-based movement",
+    "Optimized collision detection with spatial partitioning", 
+    "Enemy AI and interaction system",
+    "Level design and progression system",
+    "Power-up collection and effects",
+    "Scoring and game state management",
+    "Asset management with lazy loading",
+    "Object pooling for performance"
+  ],
+  
+  "technical_architecture": {
+    "engine": "Custom JavaScript game engine with ES2022+ modules",
+    "rendering": "HTML5 Canvas 2D with sprite batching optimization",
+    "input": "Keyboard event handling with gamepad API support",
+    "physics": "Custom collision detection with spatial optimization",
+    "assets": "Asset pipeline with compression and caching",
+    "structure": "Component-based modular classes",
+    "state_management": "Clean state transitions with debugging support"
+  },
+  
+  "game_mechanics": [
+    "Running and jumping movement with momentum physics",
+    "Enemy collision system (defeat/damage mechanics)",
+    "Item collection (coins, power-ups) with visual feedback",
+    "Multiple levels with increasing difficulty",
+    "Lives and scoring system with persistence",
+    "Physics simulation (gravity, momentum, friction)"
+  ],
+  
+  "performance_requirements": {
+    "frame_rate": "60fps consistent",
+    "frame_budget": "16.67ms per frame maximum",
+    "memory_usage": "<100MB heap usage",
+    "startup_time": "<3 seconds to playable state",
+    "optimization_techniques": [
+      "Sprite atlasing and batching",
+      "Object pooling for game entities",
+      "Frustum culling for off-screen objects",
+      "Spatial partitioning for collision detection"
+    ]
+  },
+  
+  "development_standards": {
+    "code_quality": "Clean, readable, maintainable code",
+    "testing": "Unit tests, integration tests, visual regression tests",
+    "documentation": "Comprehensive API documentation and gameplay guide",
+    "tooling": "Development server with hot reload",
+    "debugging": "Debug overlay and performance profiling"
+  },
+  
+  "success_criteria": [
+    "Playable game with authentic Mario-like feel",
+    "Consistent 60fps performance across target browsers",
+    "At least 3 complete levels with progression",
+    "Core gameplay loop fully functional and engaging",
+    "Clean, testable, and maintainable code architecture",
+    "Test coverage >85% with visual regression testing",
+    "Memory usage stays under 100MB during gameplay"
+  ],
+  
+  "scope_definition": {
+    "phase_1_core": [
+      "Player movement and physics",
+      "Basic collision detection",
+      "Level rendering system",
+      "Core game loop and states"
+    ],
+    "phase_2_gameplay": [
+      "Enemy AI and interactions",
+      "Power-up system implementation",
+      "Scoring and lives system",
+      "Multi-level progression"
+    ],
+    "phase_3_polish": [
+      "Performance optimizations",
+      "Visual and audio polish",
+      "Additional levels and content",
+      "Save/load system"
+    ],
+    "explicitly_excluded": [
+      "Multiplayer functionality",
+      "Advanced visual effects (particles, shaders)",
+      "Sound synthesis or advanced audio",
+      "Mobile touch controls",
+      "Level editor user interface"
+    ]
+  },
+  
+  "risk_mitigation": [
+    "Performance benchmarking from early development",
+    "Modular architecture allows incremental testing",
+    "Clear scope boundaries prevent feature creep",
+    "Object pooling prevents memory leaks",
+    "Cross-browser testing ensures compatibility"
+  ]
+}
