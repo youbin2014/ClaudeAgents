@@ -3,12 +3,13 @@
 GPT-5 Bridge Script for Claude Code Subagents
 
 This script acts as a bridge between Claude Code subagents and GPT-5 API.
-It handles intent analysis, planning, and evaluation tasks using GPT-5's capabilities.
+It handles intent analysis, planning, evaluation, and direct queries using GPT-5's capabilities.
 
 Usage:
     python gpt5_bridge.py --phase intent --input input.json --output output.json
     python gpt5_bridge.py --phase plan --input input.json --output output.json
     python gpt5_bridge.py --phase eval --input input.json --output output.json
+    python gpt5_bridge.py --phase direct --input input.json --output output.json  # For /gpt5 commands
 """
 
 import json
@@ -264,12 +265,66 @@ Output in JSON format:
             "reasoning_level": "high",
             "timestamp": datetime.utcnow().isoformat()
         }
+    
+    async def direct_query(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle direct GPT-5 queries from /gpt5 command."""
+        query = data.get("query", "")
+        context = data.get("context", {})
+        model_variant = context.get("model_variant", self.model_key)
+        
+        # Build the messages based on context
+        messages = []
+        
+        # System message
+        system_prompt = "You are GPT-5, providing direct, comprehensive answers. "
+        if context.get("include_code", False):
+            system_prompt += "Include code examples when relevant. "
+        messages.append({"role": "system", "content": system_prompt})
+        
+        # Add any file context if provided
+        if "files" in context and context["files"]:
+            file_context = "Context from project files:\n"
+            for file_info in context["files"]:
+                file_context += f"\n--- {file_info['path']} ---\n{file_info['content']}\n"
+            messages.append({"role": "system", "content": file_context})
+        
+        # User query
+        messages.append({"role": "user", "content": query})
+        
+        # Determine model to use
+        model_to_use = self.models.get(model_variant, self.models[self.model_key])
+        
+        try:
+            response = await self.client.chat.completions.create(
+                model=model_to_use,
+                messages=messages,
+                max_completion_tokens=8000,
+                temperature=0.7
+            )
+            
+            return {
+                "status": "success",
+                "response": response.choices[0].message.content,
+                "model": model_to_use,
+                "tokens_used": response.usage.total_tokens if hasattr(response, 'usage') else 0,
+                "response_time": 0,  # Would need timing logic
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        except Exception as e:
+            logger.error("direct_query_error", error=str(e))
+            return {
+                "status": "error",
+                "error": str(e),
+                "suggestion": "Check your API key and network connection",
+                "fallback": "Consider using the standard pipeline with >>pipeline",
+                "timestamp": datetime.utcnow().isoformat()
+            }
 
 async def main():
     """Main execution function."""
     parser = argparse.ArgumentParser(description="GPT-5 Bridge for Claude Code Subagents")
-    parser.add_argument("--phase", required=True, choices=["intent", "plan", "eval"],
-                       help="Processing phase")
+    parser.add_argument("--phase", required=True, choices=["intent", "plan", "eval", "direct"],
+                       help="Processing phase (intent, plan, eval, or direct for /gpt5 commands)")
     parser.add_argument("--input", required=True, help="Input JSON file path")
     parser.add_argument("--output", required=True, help="Output JSON file path")
     parser.add_argument("--model", default="full", choices=["full", "mini", "nano"],
@@ -301,6 +356,8 @@ async def main():
             result = await bridge.enhance_plan(input_data)
         elif args.phase == "eval":
             result = await bridge.evaluate_development(input_data)
+        elif args.phase == "direct":
+            result = await bridge.direct_query(input_data)
         else:
             raise ValueError(f"Unknown phase: {args.phase}")
         

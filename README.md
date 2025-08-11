@@ -43,14 +43,27 @@ python scripts/configure_api.py
 **避免符号冲突**：经测试发现`@`和`#`符号与Claude Code内置功能冲突，现改用`>>`前缀
 
 **新的触发方式**：
-- `>>pipeline` - 强制使用复杂任务pipeline模式
+- `/pipeline` - 显式调用完整pipeline，包含实时状态显示
+- `/gpt5` - 直接访问GPT-5，绕过pipeline获得即时响应
+- `/gpt5-mini` - 使用GPT-5 mini模型（更快速）
+- `/gpt5-nano` - 使用GPT-5 nano模型（最快速）
+- `>>pipeline` - 强制使用复杂任务pipeline模式（传统方式）
 - `>>quick` - 强制使用快速响应模式  
 - 自动检测 - 不加前缀时系统自动判断
 
 ### 使用示例
 
 ```bash
-# 复杂任务 - 明确指定pipeline
+# 显式pipeline - 完整开发流程，实时状态显示
+/pipeline Convert this authentication system to async with comprehensive tests
+
+# 直接GPT-5查询 - 绕过pipeline获得即时响应
+/gpt5 Explain the performance implications of async/await in Python
+
+# 使用GPT-5 mini进行快速响应
+/gpt5-mini What's the difference between Promise and async/await?
+
+# 复杂任务 - 传统pipeline方式
 >>pipeline Convert this authentication system to async with comprehensive tests
 
 # 快速查询 - 明确指定快速模式
@@ -64,14 +77,19 @@ Convert this function to use modern async patterns
 
 ```
 User Query → Router → Intent Analysis → Planning → Development → Evaluation
-                ↓                                                      ↓
-            Quick Response                                      Rollback (if failed)
+    ↓          ↓                                                      ↓
+  Command?   Quick Response                                  Rollback (if failed)
+    ↓
+  /pipeline → Pipeline Direct (实时状态显示)
+  /gpt5     → GPT-5 Direct
 ```
 
 ## 🤖 Pipeline阶段
 
 ### Stage 0: 路由
-- **`router`**: 决定快速响应或完整pipeline模式
+- **`router`**: 决定使用Pipeline直接模式、GPT-5直接模式、快速响应或完整pipeline模式
+- **`pipeline-direct`**: 处理/pipeline命令，执行完整pipeline并提供实时状态显示
+- **`gpt5-direct`**: 处理/gpt5命令，直接调用GPT-5 API（绕过pipeline）
 
 ### Stage 1: 意图理解
 - **`intent-cc`**: Claude分析用户意图和代码上下文

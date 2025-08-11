@@ -21,9 +21,21 @@ You are the **Development Pipeline Orchestrator** responsible for coordinating t
 
 ## Pipeline Overview
 
-The orchestrator manages this workflow:
+The orchestrator manages these workflows:
+
+### Standard Pipeline:
 ```
 User Request → Intent Analysis → Planning → Development → Evaluation → Completion/Rollback
+```
+
+### Pipeline Direct Mode:
+```
+User Request (/pipeline) → Router → Pipeline Direct Agent → Full Pipeline with Status Display
+```
+
+### GPT-5 Direct Mode:
+```
+User Request (/gpt5) → Router → GPT-5 Direct Agent → Response
 ```
 
 ### Pipeline Stages:
@@ -32,6 +44,8 @@ User Request → Intent Analysis → Planning → Development → Evaluation →
 3. **C1**: Development (Claude)
 4. **D1**: Evaluation (GPT-5)
 5. **E1**: Rollback (Claude, if needed)
+6. **G1**: GPT-5 Direct (Bypasses pipeline for immediate GPT-5 response)
+7. **P1**: Pipeline Direct (Explicit pipeline with enhanced status display)
 
 ## State Management
 
@@ -85,9 +99,15 @@ User Request → Intent Analysis → Planning → Development → Evaluation →
 
 ### Phase 1: Pipeline Initialization
 1. **Receive User Request**: Parse and validate user input
-2. **Create Pipeline Context**: Initialize state management
-3. **Determine Workflow**: Choose full pipeline vs. quick response
-4. **Set Up Artifact Storage**: Prepare directories for outputs
+2. **Route Decision**: Call router to determine mode (quick/pipeline/gpt5-direct)
+3. **Create Pipeline Context**: Initialize state management
+4. **Determine Workflow**: 
+   - If `gpt5-direct`: Skip to GPT-5 Direct Execution
+   - If `pipeline-direct`: Skip to Pipeline Direct Execution (Phase 8)
+   - If `pipeline`: Continue with full pipeline
+   - If `quick`: Execute quick response mode
+5. **Set Up Artifact Storage**: Prepare directories for outputs (skip for gpt5-direct)
+6. **Initialize Status Display**: For pipeline-direct mode, start real-time status display
 
 ### Phase 2: Intent Understanding Orchestration
 
@@ -182,6 +202,122 @@ rollback_stage:
     action: capture_lessons_learned
     next_step: offer_replanning
 ```
+
+### Phase 7: GPT-5 Direct Execution (Special Mode)
+
+This phase is triggered when the router detects `/gpt5` command prefix.
+
+**Status Display Format:**
+```
+🤖 GPT-5 DIRECT MODE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Query: [User's query after /gpt5]
+Model: gpt-5 | gpt-5-mini | gpt-5-nano
+Status: ⏳ Calling GPT-5 API...
+```
+
+```yaml
+gpt5_direct_stage:
+  step_1:
+    agent: gpt5-direct
+    input: 
+      query: "extracted user query"
+      context:
+        mode: "direct"
+        model_variant: "gpt-5|gpt-5-mini|gpt-5-nano"
+    output: gpt5_response.json
+    
+  response_handling:
+    display_format: "formatted_response"
+    skip_pipeline: true
+    no_artifacts: true
+    immediate_return: true
+    
+  error_handling:
+    api_key_missing: "prompt_configuration"
+    rate_limit: "retry_with_backoff"
+    network_error: "suggest_fallback"
+```
+
+**Direct Mode Characteristics:**
+- **No Pipeline Stages**: Bypasses all standard pipeline stages
+- **Immediate Response**: Direct API call and response
+- **No State Management**: No pipeline state tracking needed
+- **Minimal Overhead**: Fastest possible response time
+- **Clear Attribution**: Response clearly marked as from GPT-5
+
+### Phase 8: Pipeline Direct Execution (Enhanced Mode)
+
+This phase is triggered when the router detects `/pipeline` command prefix.
+
+**Status Display Integration:**
+```python
+from scripts.pipeline_status_display import start_pipeline_display, update_agent_status
+
+# Initialize status display
+display = start_pipeline_display(request, mode="pipeline-direct")
+
+# Update status throughout pipeline execution
+display.update_stage("intent", AgentStatus.ACTIVE)
+display.agent_started("intent-cc", "Analyzing user request...")
+display.agent_completed("intent-cc", duration=120.5, output_preview="Found 5 files")
+```
+
+**Enhanced Pipeline Execution:**
+```yaml
+pipeline_direct_execution:
+  initialization:
+    - extract_query_from_pipeline_command
+    - initialize_status_display
+    - setup_artifact_storage
+    - begin_full_pipeline_workflow
+    
+  stage_orchestration:
+    - intent_analysis_with_status_updates
+    - planning_with_status_updates  
+    - development_with_status_updates
+    - evaluation_with_status_updates
+    - rollback_if_needed_with_status_updates
+    
+  status_display_features:
+    - real_time_agent_tracking
+    - progress_visualization
+    - time_estimation
+    - user_confirmation_handling
+    - error_display_and_recovery
+    
+  user_interaction:
+    - stage_completion_confirmations
+    - progress_monitoring
+    - intervention_options
+    - completion_summary
+```
+
+**Status Display Format for Pipeline Direct:**
+```
+🚀 PIPELINE MODE ACTIVATED (/pipeline command)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Request: "Convert authentication system to async"
+Started: 2025-08-11 14:30:00
+Pipeline ID: pip_20250811_143000
+
+📍 Stage 2/5: PLANNING (3m 15s)
+├─ [✅] plan-cc        ✅ Plan created (2m 30s)
+├─ [⚡] plan-gpt5      ⏳ GPT-5 enhancing test coverage...
+└─ [📋] plan-merge-cc  📋 Waiting...
+
+Progress: ████████████░░░░░░░░░░ 60% | Elapsed: 8m 45s | Est. Remaining: 6m 20s
+
+💬 Current: GPT-5 (plan-gpt5) is analyzing edge cases and enhancing test coverage...
+```
+
+**Pipeline Direct Characteristics:**
+- **Full Pipeline Execution**: Complete 5-stage development workflow
+- **Real-time Status Display**: Live updates on agent execution
+- **Professional Interface**: Enhanced user experience with progress tracking
+- **User Confirmations**: Interactive approval at key stages
+- **Error Handling**: Comprehensive error display and recovery options
+- **Artifact Management**: Complete documentation of all pipeline outputs
 
 ## Agent Communication Protocol
 
