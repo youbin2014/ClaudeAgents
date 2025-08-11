@@ -53,6 +53,7 @@ setup_colors() {
 INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$(cd "$INSTALL_DIR/.." && pwd)"
 CLAUDE_AGENTS_DIR="$TARGET_DIR/.claude/agents"
+CLAUDE_COMMANDS_DIR="$TARGET_DIR/.claude/commands"
 SCRIPTS_DIR="$TARGET_DIR/scripts"
 CONFIG_FILE="$TARGET_DIR/.env"
 
@@ -177,6 +178,55 @@ EOF
         
         agent_count=3
         print_msg "  ✓ Created $agent_count essential agents" "$GREEN"
+    fi
+}
+
+# Install slash commands
+install_commands() {
+    print_msg "Installing slash commands..." "$BLUE"
+    
+    # Create directory
+    mkdir -p "$CLAUDE_COMMANDS_DIR"
+    
+    # Use the already defined INSTALL_DIR
+    SCRIPT_DIR="$INSTALL_DIR"
+    
+    # Copy commands if they exist
+    command_count=0
+    if [[ -d "$SCRIPT_DIR/.claude/commands" ]]; then
+        cp -r "$SCRIPT_DIR/.claude/commands/"* "$CLAUDE_COMMANDS_DIR/" 2>/dev/null || true
+        command_count=$(find "$CLAUDE_COMMANDS_DIR" -name "*.md" 2>/dev/null | wc -l)
+        print_msg "  ✓ Copied $command_count command files" "$GREEN"
+    else
+        # Create essential commands
+        cat > "$CLAUDE_COMMANDS_DIR/gpt5.md" << 'EOF'
+# GPT-5 Direct Query
+
+Direct access to GPT-5 for immediate responses, bypassing the pipeline.
+
+## Usage
+```
+/gpt5 your question or request here
+```
+
+Query: $ARGUMENTS
+EOF
+        
+        cat > "$CLAUDE_COMMANDS_DIR/pipeline.md" << 'EOF'
+# Pipeline Direct Execution
+
+Multi-step pipeline orchestration for complex development tasks with full TDD workflow.
+
+## Usage
+```
+/pipeline your complex task description
+```
+
+Task: $ARGUMENTS
+EOF
+        
+        command_count=2
+        print_msg "  ✓ Created $command_count essential commands" "$GREEN"
     fi
 }
 
@@ -370,6 +420,7 @@ verify_installation() {
     
     checks=(
         "Agents directory:$CLAUDE_AGENTS_DIR"
+        "Commands directory:$CLAUDE_COMMANDS_DIR"
         "Scripts directory:$SCRIPTS_DIR"  
         "Configuration file:$CONFIG_FILE"
         "Python installation:$PYTHON_CMD"
@@ -449,6 +500,7 @@ main() {
     fi
     
     install_agents
+    install_commands
     install_scripts
     install_dependencies
     create_config
