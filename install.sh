@@ -49,11 +49,12 @@ setup_colors() {
     fi
 }
 
-# Configuration
-TARGET_DIR=".."
-CLAUDE_AGENTS_DIR="../.claude/agents"
-SCRIPTS_DIR="../scripts"
-CONFIG_FILE="../.env"
+# Configuration - Use absolute paths for better reliability
+INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="$(cd "$INSTALL_DIR/.." && pwd)"
+CLAUDE_AGENTS_DIR="$TARGET_DIR/.claude/agents"
+SCRIPTS_DIR="$TARGET_DIR/scripts"
+CONFIG_FILE="$TARGET_DIR/.env"
 
 # Print functions
 print_msg() { echo -e "${2:-}${1}${NC}"; }
@@ -66,7 +67,7 @@ print_header() {
     print_msg "System: ${PLATFORM} (${ARCH})" "$BLUE"
     print_msg "Shell: ${CURRENT_SHELL}" "$BLUE"
     print_msg "Installing from: $(pwd)" "$BLUE"
-    print_msg "Installing to: $(cd "$TARGET_DIR" 2>/dev/null && pwd || echo "$(pwd)/..")" "$BLUE"
+    print_msg "Installing to: $TARGET_DIR" "$BLUE"
     echo ""
 }
 
@@ -147,8 +148,8 @@ install_agents() {
     # Create directory
     mkdir -p "$CLAUDE_AGENTS_DIR"
     
-    # Get script directory
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # Use the already defined INSTALL_DIR
+    SCRIPT_DIR="$INSTALL_DIR"
     
     # Copy agents if they exist
     agent_count=0
@@ -185,7 +186,7 @@ install_scripts() {
     
     mkdir -p "$SCRIPTS_DIR"
     
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    SCRIPT_DIR="$INSTALL_DIR"
     
     essential_scripts=("gpt5_bridge.py" "pipeline_monitor.py" "configure_api.py")
     
@@ -221,10 +222,20 @@ install_dependencies() {
             "linux")
                 if command -v apt >/dev/null 2>&1; then
                     print_msg "    Installing pip via apt..." "$BLUE"
-                    sudo apt update && sudo apt install -y python3-pip
+                    if sudo -n true 2>/dev/null; then
+                        sudo apt update && sudo apt install -y python3-pip
+                    else
+                        print_msg "    Sudo access required for system package installation" "$YELLOW"
+                        print_msg "    Please run: sudo apt update && sudo apt install -y python3-pip" "$YELLOW"
+                    fi
                 elif command -v yum >/dev/null 2>&1; then
                     print_msg "    Installing pip via yum..." "$BLUE"
-                    sudo yum install -y python3-pip
+                    if sudo -n true 2>/dev/null; then
+                        sudo yum install -y python3-pip
+                    else
+                        print_msg "    Sudo access required for system package installation" "$YELLOW"
+                        print_msg "    Please run: sudo yum install -y python3-pip" "$YELLOW"
+                    fi
                 fi
                 ;;
             "macos")
@@ -302,7 +313,7 @@ create_start_script() {
     
     case "$SYSTEM" in
         "windows")
-            start_script="../claude-agents-start.cmd"
+            start_script="$TARGET_DIR/claude-agents-start.cmd"
             cat > "$start_script" << 'EOF'
 @echo off
 echo Claude Agents Pipeline Ready!
@@ -317,7 +328,7 @@ pause
 EOF
             ;;
         *)
-            start_script="../claude-agents-start.sh"
+            start_script="$TARGET_DIR/claude-agents-start.sh"
             cat > "$start_script" << 'EOF'
 #!/bin/bash
 # Claude Agents Pipeline Start Script
@@ -418,7 +429,7 @@ main() {
     
     if [[ ! -d "$TARGET_DIR/.git" ]]; then
         print_msg "Warning: Target directory is not a git repository" "$YELLOW"
-        print_msg "Installing to: $(cd "$TARGET_DIR" && pwd)" "$YELLOW"
+        print_msg "Installing to: $TARGET_DIR" "$YELLOW"
         echo ""
         read -p "Continue installation? (y/n): " -r
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -453,7 +464,7 @@ main() {
         echo ""
         print_msg "System: $PLATFORM" "$BLUE"
         print_msg "Python: $PYTHON_VERSION" "$BLUE"
-        print_msg "Location: $(cd "$TARGET_DIR" && pwd)" "$BLUE"
+        print_msg "Location: $TARGET_DIR" "$BLUE"
         echo ""
         print_msg "${BOLD}Next steps:${NC}" "$BLUE"
         print_msg "1. Add your OPENAI_API_KEY to $CONFIG_FILE" "$NC"
